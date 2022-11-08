@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+	<!--Take product name as WinApp property-->
+	<?define ProductName="Invinsense Client" ?>
+
+	<!--Take company name as WinApp property-->
+	<?define CompanyName="Infopercept" ?>
+
+	<!--Take product version as WinApp property-->
+	<?define ProductVersion="!(bind.fileVersion.WinAppExe)" ?>
+
+	<Product Id="*" Language="1033" Name="$(var.ProductName)" Version="$(var.ProductVersion)" Manufacturer="$(var.CompanyName)" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
+
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<!--By default, MajorUpgrade schedules RemoveExistingProducts after InstallValidate. 
+		You can change the scheduling using the Schedule attribute. 
+		For example, If you choose to schedule it after InstallInitialize, it will look like the following:-->
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+		<Media Id="1" Cabinet="WinApp.cab" EmbedCab="yes" />
+
+		<Feature Id="Executable" Level="1">
+			<ComponentRef Id="Executable" />
+			<ComponentRef Id="Documentation" />
+			<ComponentGroupRef Id="RegistryGroup" />
+		</Feature>
+
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+		<UIRef Id="WixUI_InstallDir" />
+
+		<InstallExecuteSequence>
+			<Custom Action="LicenseInfoCustomAction" Before="InstallFinalize">NOT Installed</Custom>
+			<Custom Action='RemoveTools' After='InstallInitialize'>Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
+		</InstallExecuteSequence>
+
+		<UI />
+	
+	</Product>
+	
+	<Fragment>
+		<Binary Id="CustomActionBinary" SourceFile="$(var.MyCustomAction.TargetDir)$(var.MyCustomAction.TargetName).CA.dll" />
+		<CustomAction Id="LicenseInfoCustomAction" BinaryKey="CustomActionBinary" DllEntry="ShowLicenseInfo" Execute="immediate" Return="check" />
+		<CustomAction Id="RemoveTools" BinaryKey="CustomActionBinary" DllEntry="RemoveTools" Execute="immediate" Return="check" />
+	</Fragment>
+	
+	<Fragment>
+	
+		<Directory Id="TARGETDIR" Name="SourceDir">
+		
+			<Directory Id="ProgramFilesFolder">
+			
+				<Directory Id="INSTALLDIR" Name="Win App">
+				
+					<Component Id="Executable" Guid="7B289C8E-6F5B-4A7B-A9A1-E78A89239714">
+						<File Id="WinAppExe" Name="$(var.WinApp.TargetFileName)" Source="$(var.WinApp.TargetPath)" Vital="yes" />
+						<RemoveFolder Id="INSTALLDIR" On="uninstall" />
+					</Component>
+					
+					<Component Id="Documentation" Guid="E4AA4677-6DDA-4746-A956-0A636DBB2995">
+						<File Id="HelpRtf" Name="Help.rtf" Source="$(var.WinApp.TargetDir)Help.rtf" Vital="yes" />
+						<RemoveFile Id="RemoveReadMe" Name="ReadMe.txt" On="both" />
+					</Component>
+					
+				</Directory>
+				
+			</Directory>
+			
+		</Directory>
+		
+		<ComponentGroup Id="RegistryGroup">
+		
+			<Component Id="_69CB4E7B_273F_4510_B885_4633736280D0" Guid="2EC2BF60-997B-44BB-BA82-C5760FB48A19" Transitive="no" Directory="TARGETDIR">
+				<RegistryKey Root="HKLM" Key="Software" ForceCreateOnInstall="no" ForceDeleteOnUninstall="no" />
+			</Component>
+			
+			<Component Id="_A159385C_39DE_404D_833B_6F83828512C0" Guid="1D85B1A4-ABDD-4EB5-8E70-82C609462AEB" Transitive="no" Directory="TARGETDIR">
+				<RegistryKey Root="HKLM" Key="Software\WinApp Software" ForceCreateOnInstall="no" ForceDeleteOnUninstall="no" />
+			</Component>
+			
+			<Component Id="_AAF14A16_5774_4861_AD86_C21F01857F59" Guid="E5F8A3A2-209A-4297-8B01-F7BB4FC6603B" Transitive="no" Directory="TARGETDIR">
+				<RegistryValue Root="HKLM" Key="Software\WinApp Software" Type="string" Name="License" Value="Free" />
+			</Component>
+	
+		</ComponentGroup>
+
+	</Fragment>
+</Wix>
