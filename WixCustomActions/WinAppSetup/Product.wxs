@@ -34,7 +34,7 @@
 
 		<InstallExecuteSequence>
 			<Custom Action="LicenseInfoCustomAction" Before="InstallFinalize">NOT Installed</Custom>
-			<Custom Action='RemoveTools' After='InstallInitialize'>Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
+			<Custom Action='RemoveTools' Before='InstallInitialize'>Installed AND REMOVE="ALL"</Custom>
 		</InstallExecuteSequence>
 
 		<UI />
